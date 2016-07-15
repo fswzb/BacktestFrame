@@ -27,8 +27,8 @@ for i in range(len(FutureName)):
 # buy and hold
 begin = '1990-01-01'
 end = '2017-01-01'
-result = frame_main.test(all, begin, end, 'BnH', (), 'no', double_side=True, pic=True)
-save.append(result)
+# result = frame_main.test(all, begin, end, 'BnH', (), 'no', double_side=True, pic=True)
+# save.append(result)
 save = pd.DataFrame(save)
 save.to_csv('/Users/shawn/Documents/Quant/Internship/QStrategy/BacktestFrame/output/test_result.csv', index=False)
 print time.time() - time0
