@@ -1,4 +1,4 @@
-import MA
+import frame_main
 import pandas as pd
 import numpy as np
 
@@ -16,10 +16,10 @@ for i in range(len(FutureName)):
     if code == 'RO':
         end = '2013-04-26'
     if code == 'ALL':
-        returns[code] = MA.MA(FutureName.Code[:-1].tolist(), begin, end,'MA', Output='returns')
+        returns[code] = frame_main.test(FutureName.Code[:-1].tolist(), begin, end,'MA', output='returns')
     else:
-        returns[code] = MA.MA([code], begin, end,'MA', Output='returns')
-    pd.DataFrame(returns[code]).to_csv('C:\lx\BacktestFrame\\returns\\returns_%s.csv' % code)
+        returns[code] = frame_main.test([code], begin, end,'MA', output='returns')
+    pd.DataFrame(returns[code]).to_csv('C:\Users\lx\Desktop\BacktestFrame\output\\returns\\returns_%s.csv' % code)
 
 correlation = np.zeros((len(FutureName), len(FutureName)))
 for i in range(len(FutureName)):
@@ -38,4 +38,4 @@ for i in range(len(FutureName)):
 print correlation
 correlation = pd.DataFrame(correlation, index=FutureName.Code, columns=FutureName.Code)
 
-correlation.to_csv('C:\lx\BacktestFrame\output\correlation.csv')
+correlation.to_csv('C:\Users\lx\Desktop\BacktestFrame\output\correlation.csv')

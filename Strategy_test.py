@@ -1,12 +1,12 @@
 import pandas as pd
-import MA
+import frame_main
 import time
 
 FutureName = pd.read_csv('C:\lx\FutureName.csv', encoding='gbk', header=0)
 time0 = time.time()
 save = list()
 
-for i in range(31, 32):
+for i in range(len(FutureName)):
     code = FutureName.Code[i]
     begin = '1990-01-01'
     end = '2017-01-01'
@@ -18,16 +18,18 @@ for i in range(31, 32):
     if code == 'ALL':
         all = FutureName.Code.iloc[:-1].tolist()
         all.remove(u'RU')
-        result = MA.MA(all, begin, end, 'MA')
+        result = frame_main.test(all, begin, end, 'MA', pic=True)
     else:
-        result = MA.MA([code], begin, end, 'MA')
+        result = frame_main.test([code], begin, end, 'MA', pic=True)
     # result = pd.DataFrame.from_dict(result)
     # result.to_csv('C:\lx\FutureStrategy\\returns\%s_return.csv' % code)
     print result
     save.append(result)
 # buy and hold
-result = MA.MA(FutureName.Code.iloc[:-1].tolist(), begin, end, 'BnH')
+begin = '1990-01-01'
+end = '2017-01-01'
+result = frame_main.test(FutureName.Code.iloc[:-1].tolist(), begin, end, 'BnH', pic=True)
 save.append(result)
 save = pd.DataFrame(save)
-save.to_csv('C:\lx\BacktestFrame\output\\test_result.csv', index=False)
+save.to_csv('C:\Users\lx\Desktop\BacktestFrame\output\\test_result.csv', index=False)
 print time.time() - time0

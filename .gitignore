@@ -1,3 +1,5 @@
 *.csv
+*.pyc
 output
 MajorContract
+.idea

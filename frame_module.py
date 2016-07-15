@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
+import sys
 
 def MA(price, Short, Long):
     if len(price) < Long + 1:
@@ -29,3 +30,7 @@ def stop_loss(current_price, cost_price, position, Stoploss):
             return 1
     return 0
 
+def package_path():
+    global path
+    path = sys.path[0]
+    return path
