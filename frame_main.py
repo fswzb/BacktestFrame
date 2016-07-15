@@ -2,14 +2,8 @@
 
 import numpy as np
 import frame_block
-import pandas as pd
-import sys
 
-def test(future_code, begin, end, strategy, strat_params=[], output='info', pic=False):
-
-    # future_code = ['CU']
-    # begin = '1990-01-01'
-    # end = '2017-01-01'
+def test(future_code, begin, end, strategy, strat_params=(), output='info', pic=False):
     name = '-'.join(future_code)
     initial_value = 1. / len(future_code)
 
@@ -23,7 +17,7 @@ def test(future_code, begin, end, strategy, strat_params=[], output='info', pic=
     # 回测
     portfolio_values = list()
     for code in future_code:
-        value, position = frame_block.back_test(data[code], strategy, strat_params, 3, 3, tick[code], initial_value)
+        value, position = frame_block.back_test(data[code], strategy, strat_params, 5, 2, tick[code], 1, initial_value)
         value = np.append(np.ones(max_length - len(data[code])) * initial_value, value)
         position = np.append(np.zeros(max_length - len(data[code])), position)
         portfolio_values.append(value)
@@ -38,4 +32,4 @@ def test(future_code, begin, end, strategy, strat_params=[], output='info', pic=
     return frame_block.evaluate(portfolio_value, strategy, strat_params, name, output)
 
 if __name__ == '__main__':
-    test(['RU'], '1990-01-01', '2017-01-01', 'MA', pic=True)
+    test(['RU'], '1990-01-01', '2017-01-01', 'MA', strat_params=(5, 20), pic=True)

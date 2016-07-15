@@ -18,9 +18,9 @@ for i in range(len(FutureName)):
     if code == 'ALL':
         all = FutureName.Code.iloc[:-1].tolist()
         all.remove(u'RU')
-        result = frame_main.test(all, begin, end, 'MA', pic=True)
+        result = frame_main.test(all, begin, end, 'MA', strat_params=(5, 20), pic=True)
     else:
-        result = frame_main.test([code], begin, end, 'MA', pic=True)
+        result = frame_main.test([code], begin, end, 'MA', strat_params=(5, 20), pic=True)
     # result = pd.DataFrame.from_dict(result)
     # result.to_csv('C:\lx\FutureStrategy\\returns\%s_return.csv' % code)
     print result
