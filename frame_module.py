@@ -31,15 +31,18 @@ def strategy(price, strategy, strat_params=()):
             return 1
 
 
-def stop_loss(price, strat_signal, position, stop_loss):
-    cost = price[np.where(strat_signal!=0)][-1]
-    if position[-1] == 1:
-        if price[-1] < cost * (100 - stop_loss) / 100: # 多头止损
-            return -1
-    elif position[-1] == -1:
-        if price[-1] > cost * (100 + stop_loss) / 100: # 空头止损
-            return 1
-    return 0
+def stop_loss(price, strat_signal, position, stop_loss, stop_strat='percent'):
+    if stop_strat is 'percent':
+        cost = price[np.where(strat_signal!=0)][-1]
+        if position[-1] == 1:
+            if price[-1] < cost * (100 - stop_loss) / 100: # 多头止损
+                return -1
+        elif position[-1] == -1:
+            if price[-1] > cost * (100 + stop_loss) / 100: # 空头止损
+                return 1
+        return 0
+    if stop_strat is 'no':
+        return 0
 
 def position_control(price, position, strat_signal, stop_signal, double_side=True, position_strategy='all-in'):
     if position_strategy == 'all-in':
@@ -48,7 +51,7 @@ def position_control(price, position, strat_signal, stop_signal, double_side=Tru
                 if double_side is True: # 双边交易
                     return strat_signal[-1]
                 else:
-                    return max[0, strat_signal[-1]] # 单边交易，仓位为正
+                    return max(0, strat_signal[-1]) # 单边交易，仓位为正
         if stop_signal[-1] != 0: # 没有交易信号，考虑止损
             return 0
         else:

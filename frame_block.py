@@ -10,7 +10,7 @@ def get_data(FutureCode, Begin, End):
     data = dict()
     length = list()
     for code in FutureCode:
-        data[code] = pd.read_csv(frame_module.package_path() + '\MajorContract\%s.csv' % code,
+        data[code] = pd.read_csv(frame_module.package_path() + '/MajorContract/%s.csv' % code,
             dtype={'Close': np.double, 'Contract': str, 'Date': pd.datetime, 'Volume': np.double})
         data[code] = data[code][data[code].Date >= Begin][data[code].Date <= End]
         length.append(len(data[code]))
@@ -18,7 +18,7 @@ def get_data(FutureCode, Begin, End):
     date = data[FutureCode[length.index(max(length))]].Date
     return data, date, max_length
 
-def back_test(data, strategy, strat_params, stop_loss, slippage, tick, margin=1, initial_value=1):
+def back_test(data, strategy, strat_params, stop_strat, stop_loss, slippage, tick, double_side=True, margin=1, initial_value=1):
     # parameters
     price = np.array(data.Close)
     strat_signal = np.array([]) # strategy signal 1 = buy; -1 = sell.
@@ -26,9 +26,8 @@ def back_test(data, strategy, strat_params, stop_loss, slippage, tick, margin=1,
     position = np.array([0]) # positive means long position, negative means short position.
 
     # 计算标的资产收益率
-    asset_returns = np.array(data.Close.diff(1) / data.Close.iat[0])
-    asset_returns[0] = 0
-
+    asset_returns = (price[1:] - price[:-1]) / price[:-1]
+    asset_returns = np.append(0, asset_returns)
     # 逐日获取交易信号
     if strategy in ('MA', 'BnH'):
         for i in range(len(data)):
@@ -36,24 +35,32 @@ def back_test(data, strategy, strat_params, stop_loss, slippage, tick, margin=1,
             strat_signal = np.append(strat_signal, frame_module.strategy(price[:i + 1], strategy, strat_params))
             # 止损信号
             if position[-1] != 0:
-                stop_signal = np.append(stop_signal, frame_module.stop_loss(price, strat_signal, position, stop_loss)) # 1: buy; -1: sell; 0: no trade.
+                stop_signal = np.append(stop_signal, frame_module.stop_loss(price, strat_signal, position, stop_loss, stop_strat)) # 1: buy; -1: sell; 0: no trade.
             else:
                 stop_signal = np.append(stop_signal, 0)
             # 更新仓位
-            position = np.append(position, frame_module.position_control(price, position, strat_signal, stop_signal, double_side=True, position_strategy='all-in'))
+            position = np.append(position, frame_module.position_control(price, position, strat_signal, stop_signal, double_side=double_side, position_strategy='all-in'))
         position = position[:-1] # 对齐序列
 
 
         # 根据滑点调整收益率(采用近似公式)
         adjust_asset_returns =asset_returns
         for i in range(1, len(asset_returns)):
-            if (position[i - 1] == 0 and position[i] == 1) or (position[i - 1] == 0 and position[i] == -1): # 开仓滑点
+            if (position[i - 1] == 0 and position[i] == 1): # 开多滑点
                 adjust_asset_returns[i] = adjust_asset_returns[i] - slippage * tick / price[i - 1]
-            elif (position[i - 1] == 1 and position[i] == 0) or (position[i - 1] == -1 and position[i] == 0): # 平仓滑点
+            elif (position[i - 1] == 0 and position[i] == -1): # 开空滑点
+                adjust_asset_returns[i] = adjust_asset_returns[i] + slippage * tick / price[i - 1]
+            elif (position[i - 1] == 1 and position[i] == 0): # 平多滑点
                 adjust_asset_returns[i - 1] = adjust_asset_returns[i - 1] - slippage * tick / price[i - 2]
-            elif (position[i - 1] == -1 and position[i] == 1) or (position[i - 1] == 1 and position[i] == -1): # 反手滑点
+            elif (position[i - 1] == -1 and position[i] == 0): # 平空滑点
+                adjust_asset_returns[i - 1] = adjust_asset_returns[i - 1] + slippage * tick / price[i - 2]
+            elif (position[i - 1] == -1 and position[i] == 1): # 反手滑点
+                adjust_asset_returns[i - 1] = adjust_asset_returns[i - 1] + slippage * tick / price[i - 2]
                 adjust_asset_returns[i] = adjust_asset_returns[i] - slippage * tick / price[i - 1]
+            elif (position[i - 1] == 1 and position[i] == -1):
                 adjust_asset_returns[i - 1] = adjust_asset_returns[i - 1] - slippage * tick / price[i - 2]
+                adjust_asset_returns[i] = adjust_asset_returns[i] + slippage * tick / price[i - 1]
+
 
         # 计算策略收益率(考虑杠杆)
         returns = adjust_asset_returns * position / margin
@@ -64,13 +71,14 @@ def back_test(data, strategy, strat_params, stop_loss, slippage, tick, margin=1,
         print 'strategy not found.'
 
 
-def save_output(data, strategy, name):
-    pd.DataFrame(data).to_csv(frame_module.package_path() + '\\output\positions\%s_%s.csv' % (strategy, name))
+def save_output(data, folder, strategy, name):
+    pd.DataFrame(data).to_csv(frame_module.package_path() + '/output/' + folder + '/%s_%s.csv' % (strategy, name))
 
 def evaluate(portfolio_value, strategy, strat_params, name, output):
-    returns = (portfolio_value[1:] - portfolio_value[0:-1]) / portfolio_value[0:-1]
+    returns = np.append(0, (portfolio_value[1:] - portfolio_value[:-1]) / portfolio_value[:-1])
+    save_output(returns, 'returns', strategy, name)
     # 1. return
-    final_return = ((portfolio_value - 1) / 1)[-1]
+    final_return = (portfolio_value[-1] - 1) / 1
     annul_return = (final_return + 1) ** (1. / len(returns) * 250) - 1
 
     # 2. volatility
@@ -128,5 +136,5 @@ def pic(future_code, portfolio_values, portfolio_value, data, date, name, strate
         label.append(date.iat[xtick[i]])
     ax.set_xticklabels(label)
     plt.title(name)
-    plt.savefig(frame_module.package_path() + '\output\pics\%s_%s.png' % (strategy, name), dpi=100)
+    plt.savefig(frame_module.package_path() + '/output/pics/%s_%s.png' % (strategy, name), dpi=100)
     plt.close('all')
