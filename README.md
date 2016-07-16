@@ -1,5 +1,5 @@
 # BacktestFrame
-A Python Backtest Framework
+A Backtest Framework in Python
 
 #### Framework Structure
 
@@ -14,3 +14,13 @@ A Python Backtest Framework
 numpy  
 pandas  
 matplotlib  
+
+#### Input Data
+The data modules connecting to databases have not done yet.  
+Current test data is compressed in MajorContract.zip.
+
+#### Usage
+Use function test in frame_main.py to conduct single target backtest.
+Use script Strategy_test.py to conduct multi targets backtest.
+
+note: Correlation.py is integrated into Strategy_test.py
