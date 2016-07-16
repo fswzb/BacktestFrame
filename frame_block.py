@@ -10,7 +10,7 @@ def get_data(FutureCode, Begin, End):
     data = dict()
     length = list()
     for code in FutureCode:
-        data[code] = pd.read_csv(frame_module.package_path() + '/MajorContract/%s.csv' % code,
+        data[code] = pd.read_csv(frame_module.package_path() + '\MajorContract\/%s.csv' % code,
             dtype={'Close': np.double, 'Contract': str, 'Date': pd.datetime, 'Volume': np.double})
         data[code] = data[code][data[code].Date >= Begin][data[code].Date <= End]
         length.append(len(data[code]))
@@ -72,7 +72,7 @@ def back_test(data, strategy, strat_params, stop_strat, stop_loss, slippage, tic
 
 
 def save_output(data, folder, strategy, name):
-    pd.DataFrame(data).to_csv(frame_module.package_path() + '/output/' + folder + '/%s_%s.csv' % (strategy, name))
+    pd.DataFrame(data).to_csv(frame_module.package_path() + '\output\\' + folder + '\%s_%s.csv' % (strategy, name))
 
 def evaluate(portfolio_value, strategy, strat_params, name, output):
     returns = np.append(0, (portfolio_value[1:] - portfolio_value[:-1]) / portfolio_value[:-1])
@@ -136,5 +136,5 @@ def pic(future_code, portfolio_values, portfolio_value, data, date, name, strate
         label.append(date.iat[xtick[i]])
     ax.set_xticklabels(label)
     plt.title(name)
-    plt.savefig(frame_module.package_path() + '/output/pics/%s_%s.png' % (strategy, name), dpi=100)
+    plt.savefig(frame_module.package_path() + '\output\pics\%s_%s.png' % (strategy, name), dpi=100)
     plt.close('all')
