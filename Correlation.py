@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
-import frame_main
+
 import pandas as pd
 import numpy as np
+import frame_main
+import frame_module
 
-FutureName = pd.read_csv('C:\lx\FutureName.csv', encoding='gbk', header=0)
+FutureName = pd.read_csv(frame_module.package_path() + '\FutureName.csv', encoding='gbk', header=0)
 returns = dict()
 for i in range(len(FutureName)):
     code = FutureName.Code[i]
@@ -18,10 +20,13 @@ for i in range(len(FutureName)):
     if code == 'RO':
         end = '2013-04-26'
     if code == 'ALL':
-        returns[code] = frame_main.test(FutureName.Code[:-1].tolist(), begin, end,'MA', output='returns')
+        all = FutureName.Code.iloc[:-1].tolist()
+        result = frame_main.test(all, begin, end, 'MA', (5, 20), 'percent', double_side=True, pic=True)
+        returns[code] = result['returns']
     else:
-        returns[code] = frame_main.test([code], begin, end,'MA', output='returns')
-    pd.DataFrame(returns[code]).to_csv('C:\Users\lx\Desktop\BacktestFrame\output\\returns\\returns_%s.csv' % code)
+        result = frame_main.test([code], begin, end, 'MA', (5, 20), 'percent', double_side=True, pic=True)
+        returns[code] = result['returns']
+    pd.DataFrame(returns[code]).to_csv(frame_module.package_path() + '\output\\returns\\returns_%s.csv' % code)
 
 correlation = np.zeros((len(FutureName), len(FutureName)))
 for i in range(len(FutureName)):
@@ -39,5 +44,4 @@ for i in range(len(FutureName)):
         correlation[j, i] = corr
 print correlation
 correlation = pd.DataFrame(correlation, index=FutureName.Code, columns=FutureName.Code)
-
-correlation.to_csv('C:\Users\lx\Desktop\BacktestFrame\output\correlation.csv')
+correlation.to_csv(frame_module.package_path() + '\output\correlation.csv')

@@ -3,7 +3,7 @@
 import numpy as np
 import frame_block
 
-def test(future_code, begin, end, strategy, strat_params, stop_strat, double_side=True, output='info', pic=False):
+def test(future_code, begin, end, strategy, strat_params, stop_strat, double_side=True, pic=False):
 
     name = '-'.join(future_code)
     initial_value = 1. / len(future_code) # 平均分配给各个标的资产
@@ -31,7 +31,7 @@ def test(future_code, begin, end, strategy, strat_params, stop_strat, double_sid
         frame_block.pic(future_code, portfolio_values, portfolio_value, data, date, name, strategy)
 
     # 计算比率
-    return frame_block.evaluate(portfolio_value, strategy, strat_params, name, output)
+    return frame_block.evaluate(portfolio_value, strategy, strat_params, name)
 
 if __name__ == '__main__': # 测试
     test('CU', '1990-01-01', '2017-01-01', 'MA', (5, 30), 'percent', pic=True)

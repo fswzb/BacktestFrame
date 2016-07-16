@@ -74,7 +74,7 @@ def back_test(data, strategy, strat_params, stop_strat, stop_loss, slippage, tic
 def save_output(data, folder, strategy, name):
     pd.DataFrame(data).to_csv(frame_module.package_path() + '\output\\' + folder + '\%s_%s.csv' % (strategy, name))
 
-def evaluate(portfolio_value, strategy, strat_params, name, output):
+def evaluate(portfolio_value, strategy, strat_params, name):
     returns = np.append(0, (portfolio_value[1:] - portfolio_value[:-1]) / portfolio_value[:-1])
     save_output(returns, 'returns', strategy, name)
     # 1. return
@@ -99,20 +99,17 @@ def evaluate(portfolio_value, strategy, strat_params, name, output):
     annul_down_std = np.sqrt(
         np.sum(((abs(returns - np.mean(returns)) - (returns - np.mean(returns))) / 2) ** 2) / len(returns)) * np.sqrt(250)
     sortino = (annul_return - 0.02) / annul_down_std
-    if output is 'info':
-        info =  {'portfolio': name,
-                'annul return': annul_return,
-                'annul volatility': annul_volatility,
-                'max drawdown': maxdrawdown,
-                'sharp': sharp,
-                'sortino': sortino,
-                'total return / dawndown': final_return / maxdrawdown,
-                'strategy': strategy + str(strat_params)
-                }
-        print info
-        return info
-    if output is 'returns':
-        return returns
+    info =  {'portfolio': name,
+            'annul return': annul_return,
+            'annul volatility': annul_volatility,
+            'max drawdown': maxdrawdown,
+            'sharp': sharp,
+            'sortino': sortino,
+            'total return / dawndown': final_return / maxdrawdown,
+            'strategy': strategy + str(strat_params),
+            'returns': returns
+            }
+    return info
 
 def pic(future_code, portfolio_values, portfolio_value, data, date, name, strategy):
     plt.figure(figsize=(16,9))
