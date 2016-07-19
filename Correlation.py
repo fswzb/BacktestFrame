@@ -15,7 +15,7 @@ for i in range(len(FutureName)):
     begin = '1990-01-01'
     end = '2017-01-01'
     # special criterion
-    if code =='CF':
+    if code == 'CF':
         begin = '2008-01-01'
     if code == 'RO':
         end = '2013-04-26'

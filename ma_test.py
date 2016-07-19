@@ -56,4 +56,3 @@ correlation = pd.DataFrame(correlation, index=FutureName.Code, columns=FutureNam
 correlation.to_csv(frame_module.package_path() + '\output\correlation.csv')
 
 print time.time() - time0
-

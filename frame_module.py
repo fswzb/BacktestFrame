@@ -3,6 +3,7 @@
 import numpy as np
 import sys
 
+
 def strategy(price, strategy, strat_params=()):
     """
     Given a strategy, return the signal.
@@ -49,19 +50,21 @@ def strategy(price, strategy, strat_params=()):
         if len(price) < estimate_period + 1:
             return 0
         else:
-            ma_ago = np.mean(price[-(estimate_period+1):-1])
+            ma_ago = np.mean(price[-(estimate_period + 1):-1])
             ma_now = np.mean(price[-estimate_period:])
-            std_ago = np.std(price[-(estimate_period+1):-1])
+            std_ago = np.std(price[-(estimate_period + 1):-1])
             std_now = np.std(price[-estimate_period:])
-            if price[-2] > ma_ago - open_multiple * std_ago and price[-1] < ma_now - open_multiple * std_now: # 下穿下开仓线
-                return 1 # 开多
-            if price[-2] < ma_ago + open_multiple * std_ago and price[-1] > ma_now + open_multiple * std_now: # 上穿上开仓线
-                return -1 # 开空
-            if price[-2] < ma_ago - close_multiple * std_ago and price[-1] > ma_now - close_multiple * std_now: # 上穿下平仓线
-                return 2 # 平多
-            if price[-2] > ma_ago + close_multiple * std_ago and price[-1] < ma_now + close_multiple * std_now: # 下穿上平仓线
-                return -2 # 平空
-        return 0 # 没有交易信号
+            if price[-2] > ma_ago - open_multiple * std_ago and price[-1] < ma_now - open_multiple * std_now:  # 下穿下开仓线
+                return 1  # 开多
+            if price[-2] < ma_ago + open_multiple * std_ago and price[-1] > ma_now + open_multiple * std_now:  # 上穿上开仓线
+                return -1  # 开空
+            if price[-2] < ma_ago - close_multiple * std_ago and price[
+                -1] > ma_now - close_multiple * std_now:  # 上穿下平仓线
+                return 2  # 平多
+            if price[-2] > ma_ago + close_multiple * std_ago and price[
+                -1] < ma_now + close_multiple * std_now:  # 下穿上平仓线
+                return -2  # 平空
+        return 0  # 没有交易信号
 
 
 def stop_loss(price, strat_signal, stop_loss, stop_strat='percent'):
@@ -74,34 +77,36 @@ def stop_loss(price, strat_signal, stop_loss, stop_strat='percent'):
     :return: 0: no stop, 2: stop long position, -2: stop short position
     """
     if stop_strat is 'percent':
-        cost = price[np.where(np.where(strat_signal==-1, 1, strat_signal) == 1)][-1]
-        if price[-1] < cost * (100 - stop_loss) / 100: # 多头止损
+        cost = price[np.where(np.where(strat_signal == -1, 1, strat_signal) == 1)][-1]
+        if price[-1] < cost * (100 - stop_loss) / 100:  # 多头止损
             return 2
-        if price[-1] > cost * (100 + stop_loss) / 100: # 空头止损
+        if price[-1] > cost * (100 + stop_loss) / 100:  # 空头止损
             return -2
         return 0
     if stop_strat is 'no':
         return 0
 
+
 def position_control(price, position, strat_signal, stop_signal, double_side=True, position_strategy='all-in'):
     if position_strategy == 'all-in':
-        if strat_signal[-1] != 0: # 以交易信号为主
+        if strat_signal[-1] != 0:  # 以交易信号为主
             if position[-1] == 0:
-                if strat_signal[-1] == 1 or strat_signal[-1] == -1: # 开仓信号
+                if strat_signal[-1] == 1 or strat_signal[-1] == -1:  # 开仓信号
                     return strat_signal[-1]
             elif position[-1] == 1:
-                if strat_signal[-1] == -1: # 反手信号
+                if strat_signal[-1] == -1:  # 反手信号
                     return -1
-                if strat_signal[-1] == 2: # 平多信号
+                if strat_signal[-1] == 2:  # 平多信号
                     return 0
             elif position[-1] == -1:
-                if strat_signal[-1] == 1: # 反手信号
+                if strat_signal[-1] == 1:  # 反手信号
                     return 1
-                if strat_signal[-1] == -2: #平空信号
+                if strat_signal[-1] == -2:  # 平空信号
                     return 0
-        if (stop_signal[-1] == 2 and position[-1] == 1) or (stop_signal[-1] == -2 and position[-1] == -1): # 没有有效交易信号，考虑止损
+        if (stop_signal[-1] == 2 and position[-1] == 1) or (
+                stop_signal[-1] == -2 and position[-1] == -1):  # 没有有效交易信号，考虑止损
             return 0
-        return position[-1] # 无交易信号也无止损信号，仓位不变
+        return position[-1]  # 无交易信号也无止损信号，仓位不变
 
 
 def package_path():
