@@ -14,21 +14,22 @@ all = FutureName.Code.iloc[:-1].tolist()
 
 for i in range(len(FutureName)):
     code = FutureName.Code[i]
-    begin = '1990-01-01'
+    begin = '2006-01-01'
     end = '2017-01-01'
     if code == 'ALL':
         # all.remove(u'RU')
-        result = frame_main.test(all, begin, end, 'MA', (5, 20), 'percent', double_side=True, pic=True)
+        result = frame_main.multi_test(all, begin, end, 'MA', (5, 20), 'percent', double_side=True, pic=True)
     else:
-        result = frame_main.test([code], begin, end, 'MA', (5, 20), 'percent', double_side=True, pic=True)
+        result = frame_main.multi_test([code], begin, end, 'MA', (5, 20), 'percent', double_side=True, pic=True)
     returns[code] = result['returns']
     result.pop('returns')
     print result
     save.append(result)
 # buy and hold
-begin = '1990-01-01'
+begin = '2006-01-01'
 end = '2017-01-01'
-result = frame_main.test(all, begin, end, 'BnH', (), 'no', double_side=True, pic=True)
+result = frame_main.multi_test(all, begin, end, 'BnH', (), 'no', double_side=True, pic=True)
+result.pop('returns')
 save.append(result)
 
 # 储存回测结果
