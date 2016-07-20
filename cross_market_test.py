@@ -7,7 +7,8 @@ pairs = [['CU_LME', 'CU'], ['ZN_LME', 'ZN'], ['NI_LME', 'NI'], ['AL_LME', 'AL']]
 returns = dict()
 save = list()
 for pair in pairs:
-    result = frame_main.cross_trade_test(pair, '2010-01-01', '2016-01-01', 'Mean_Reversion', (20, 1.5, 0.5), 'percent', 3, double_side=True, pic=False)
+    result = frame_main.cross_trade_test(pair, '2010-01-01', '2016-01-01', 'Mean_Reversion', (20, 1.5, 0.5), 'percent',
+        3, double_side=True, pic=False)
     returns[pair[0]] = result['returns']
     result.pop('returns')
     print result
@@ -32,4 +33,3 @@ for i in range(4):
 print correlation
 correlation = pd.DataFrame(correlation, index=[pair[0] for pair in pairs], columns=[pair[0] for pair in pairs])
 correlation.to_csv(frame_module.package_path() + '\output\correlation_cross_market.csv')
-
